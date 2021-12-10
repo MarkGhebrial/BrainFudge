@@ -3,7 +3,7 @@ use mem::BFMemory;
 
 fn main() {
     // The Brainf*** source code
-    let input = String::from("++>+++++[<+>-]++++++++[<++++++>-]<.");
+    let input = String::from("+++>+++++[<+>-]++++++++[<++++++>-]<.");
     //let input = String::from("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.");
 
     // Parse each symbol of the source code

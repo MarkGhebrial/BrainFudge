@@ -28,27 +28,37 @@ impl BFMemory {
         self.pointer -= amount;
     }
 
-    pub fn write_to_current_address(&mut self, new_val: &u8) {
-        let val = self.memory.get_mut(self.pointer);
+    pub fn write_to_address(&mut self, address: &usize, new_val: &u8) {
+        let val = self.memory.get_mut(*address);
         match val {
             Some(x) => *x = *new_val,
             None => {
-                self.memory.resize(self.pointer + 1, 0);
-                *self.memory.get_mut(self.pointer).unwrap() = *new_val;
+                self.memory.resize(address + 1, 0);
+                *self.memory.get_mut(*address).unwrap() = *new_val;
+            }
+        }
+    }
+
+    pub fn write_to_current_address(&mut self, new_val: &u8) {
+        let address = self.pointer;
+        self.write_to_address(&address, new_val);
+    }
+
+    pub fn read_address(&mut self, address: &usize) -> u8 {
+        let val = self.memory.get(*address);
+        match val {
+            Some(x) => *x,
+            None => { 
+                // If the memory is not long enough, lengthen it
+                self.memory.resize(address + 1, 0);
+                *self.memory.get(*address).unwrap()
             }
         }
     }
 
     pub fn read_current_address(&mut self) -> u8 {
-        let val = self.memory.get(self.pointer);
-        match val {
-            Some(x) => *x,
-            None => { 
-                // If the memory is not long enough, lengthen it
-                self.memory.resize(self.pointer + 1, 0);
-                *self.memory.get(self.pointer).unwrap()
-            }
-        }
+        let address = self.pointer;
+        self.read_address(&address)
     }
 
     pub fn increment_current_address(&mut self, amount: &u8) {
