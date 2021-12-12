@@ -1,7 +1,6 @@
 mod commands;
 pub use commands::{
-    BFCommand, 
-    parse_string_into_commands
+    BFCommand
 };
 
 mod mem;
