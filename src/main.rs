@@ -1,8 +1,9 @@
-mod commands;
-use commands::{BFCommand, parse_string_into_commands};
-
-mod mem;
-use mem::BFMemory;
+mod interpreter;
+use interpreter::{
+    BFCommand, 
+    parse_string_into_commands, 
+    BFMemory
+};
 
 fn main() {
     // The Brainf**k source code
