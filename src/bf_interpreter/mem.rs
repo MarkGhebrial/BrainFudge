@@ -71,3 +71,26 @@ impl BFMemory {
         self.write_to_current_address(&new_val);
     }
 }
+
+impl Iterator for BFMemory {
+    type Item = u8;
+
+    fn next(&mut self) -> Self::Item {
+        
+    }
+}
+
+use std::fmt;
+impl fmt::Display for BFMemory {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut first_line = String::new();
+        let mut second_line = String:: new();
+
+        for
+    }
+}
+
+/*
+[0][255][57][100][]
+0  1    2   3^
+*/
