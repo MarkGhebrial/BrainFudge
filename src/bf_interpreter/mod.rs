@@ -21,7 +21,7 @@ mod tests {
 
         assert_eq!(
             format!("{}", e),
-            String::from("+++>+++++[<+>-]++]++++++[<++++++>-]<.\n                 ^ Unmatched bracket")    
+            String::from("+++>+++++[<+>-]++]++++++[<++++++>-]<.\n                 ^ Err: Unmatched bracket")    
         )
     }
 

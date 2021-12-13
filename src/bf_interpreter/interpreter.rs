@@ -21,13 +21,13 @@ use std::fmt;
 impl fmt::Display for UnmatchedBracketError {
     /// Display something like this:
     /// +++>+++++[<+>-]++]++++++[<++++++>-]<.
-    ///                  ^ Unmatched bracket
+    ///                  ^ Err: Unmatched bracket
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut spaces = String::new();
         for _i in 0..self.location {
             spaces += " ";
         }
-        write!(f, "{}\n{}^ Unmatched bracket", self.erroneous_code, spaces)
+        write!(f, "{}\n{}^ Err: Unmatched bracket", self.erroneous_code, spaces)
     }
 }
 
@@ -101,6 +101,7 @@ impl BFInterpreter {
                     return Err(UnmatchedBracketError::new(i, BFInterpreter::parse_commands_into_string(&commands)));
                 }
             }
+            println!("\n{}", self.memory);
             i += 1;
         }
 

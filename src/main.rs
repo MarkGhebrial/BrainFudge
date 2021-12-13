@@ -10,9 +10,8 @@ fn main() {
 
     let mut interpreter = BFInterpreter::new();
 
-    print!("\n");
     match interpreter.execute(&input) {
-        Ok(()) => println!("Huzzah! The program executed with no errors"),
-        Err(e) => println!("{}", e)
+        Ok(()) => println!("\nHuzzah! The program executed with no errors"),
+        Err(e) => println!("\n{}", e)
     };
 }
