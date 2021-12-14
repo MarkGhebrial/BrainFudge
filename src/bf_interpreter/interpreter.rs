@@ -1,48 +1,36 @@
 use super::{
     BFCommand,
-    BFMemory
+    BFMemory,
+    BFError,
+    BFErrorType
 };
-
-/// An instance of this struct will be returned in a Result:Err() if the
-/// interpreter is given Brainf**k code that contains unmatched bracket
-/// operators
-pub struct UnmatchedBracketError {
-    location: usize,
-    erroneous_code: String
-}
-
-impl UnmatchedBracketError {
-    pub fn new(location: usize, erroneous_code: String) -> UnmatchedBracketError {
-        UnmatchedBracketError { location, erroneous_code }
-    }
-}
-
-use std::fmt;
-impl fmt::Display for UnmatchedBracketError {
-    /// Display something like this:
-    /// +++>+++++[<+>-]++]++++++[<++++++>-]<.
-    ///                  ^ Err: Unmatched bracket
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut spaces = String::new();
-        for _i in 0..self.location {
-            spaces += " ";
-        }
-        write!(f, "{}\n{}^ Err: Unmatched bracket", self.erroneous_code, spaces)
-    }
-}
 
 pub struct BFInterpreter {
     memory: BFMemory,
+    debug_mode: bool
 }
 
 impl BFInterpreter {
     pub fn new() -> BFInterpreter {
         BFInterpreter {
-            memory: BFMemory::new()
+            memory: BFMemory::new(),
+            debug_mode: false
         }
     }
 
-    pub fn execute(&mut self, bf_code: &String) -> Result<(), UnmatchedBracketError> {
+    pub fn new_with_debug() -> BFInterpreter {
+        BFInterpreter {
+            memory: BFMemory::new(),
+            debug_mode: true
+        }
+    }
+
+    /// Clear all the memory
+    pub fn reset(&mut self) {
+        self.memory = BFMemory::new();
+    }
+
+    pub fn execute(&mut self, bf_code: &String) -> Result<(), BFError> {
         let commands = BFInterpreter::parse_string_into_commands(bf_code);
 
         // Process the commands (blocks the current thread)
@@ -55,7 +43,13 @@ impl BFInterpreter {
                 }
                 BFCommand::ShiftPointerLeft() => {
                     // Move it backward
-                    self.memory.decrement_pointer(&1);
+                    if let Err(err) = self.memory.decrement_pointer(&1) {
+                        return Err(BFError::new(
+                            i,
+                            BFInterpreter::parse_commands_into_string(&commands),
+                            err
+                        ));
+                    }
                 }
                 BFCommand::IncrementCell() => {
                     // Increment the currently pointed byte by one
@@ -84,7 +78,11 @@ impl BFInterpreter {
                                 _ => {}
                             };
                         }
-                        return Err(UnmatchedBracketError::new(i, BFInterpreter::parse_commands_into_string(&commands)));
+                        return Err(BFError::new(
+                            i, 
+                            BFInterpreter::parse_commands_into_string(&commands),
+                            BFErrorType::UnmatchedBracket()
+                        ));
                     }
                 }
                 BFCommand::JumpBackward() => {
@@ -98,13 +96,18 @@ impl BFInterpreter {
                             _ => {}
                         };
                     }
-                    return Err(UnmatchedBracketError::new(i, BFInterpreter::parse_commands_into_string(&commands)));
+                    return Err(BFError::new(
+                        i, 
+                        BFInterpreter::parse_commands_into_string(&commands),
+                        BFErrorType::UnmatchedBracket()
+                    ));
                 }
             }
-            println!("\n{}", self.memory);
             i += 1;
         }
-
+        if self.debug_mode {
+            println!("{}", self.memory);
+        }
         Ok(())
     }
 

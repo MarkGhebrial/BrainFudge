@@ -9,8 +9,10 @@ pub use mem::BFMemory;
 mod interpreter;
 pub use interpreter::{
     BFInterpreter,
-    UnmatchedBracketError
 };
+
+pub mod errors;
+pub use errors::*;
 
 // TODO: Get my tests to run correctly!
 #[cfg(tests)]

@@ -1,3 +1,5 @@
+use super::{ BFError, BFErrorType };
+
 pub struct BFMemory {
     memory: Vec<u8>,
     pointer: usize
@@ -14,7 +16,6 @@ impl BFMemory {
 
     pub fn set_pointer(&mut self, val: &usize) {
         self.pointer = *val;
-        self.read_address(val); // Extend the array
     }
 
     pub fn get_pointer(&self) -> usize { 
@@ -25,8 +26,13 @@ impl BFMemory {
         self.pointer += amount;
     }
 
-    pub fn decrement_pointer(&mut self, amount: &usize) {
-        self.pointer -= amount;
+    pub fn decrement_pointer(&mut self, amount: &usize) -> Result<(), BFErrorType> {
+        if amount <= &self.pointer {
+            self.pointer -= amount;
+        } else {
+            return Err(BFErrorType::PointerOutOfBounds());
+        }
+        Ok(())
     }
 
     pub fn write_to_address(&mut self, address: &usize, new_val: &u8) {
@@ -113,7 +119,7 @@ impl fmt::Display for BFMemory {
             if self.get_pointer() == i {
                 bracket = "[ "; // If so, then use square brackets insted of pipes
             } else {
-                if self.get_pointer() == i - i { // If the last cell is the referenced one
+                if i > 0 && self.get_pointer() == i - 1 { // If the last cell is the referenced one
                     bracket = "] "
                 } else {
                     bracket = "| ";
