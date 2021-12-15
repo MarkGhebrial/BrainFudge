@@ -34,6 +34,6 @@ impl fmt::Display for BFError {
             BFErrorType::PointerOutOfBounds() => "Pointer moved out bounds",
             BFErrorType::CellOverflow() => "Cell exceeding 8-bit limit"
         });
-        write!(f, "{}\n{}^ Err: {}", self.erroneous_code, spaces, message)
+        write!(f, "{}\n{}^ Err: {}", self.erroneous_code.trim(), spaces, message)
     }
 }

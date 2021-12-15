@@ -46,18 +46,30 @@ impl BFInterpreter {
                     if let Err(err) = self.memory.decrement_pointer(&1) {
                         return Err(BFError::new(
                             i,
-                            BFInterpreter::parse_commands_into_string(&commands),
+                            bf_code.to_string(),
                             err
                         ));
                     }
                 }
                 BFCommand::IncrementCell() => {
                     // Increment the currently pointed byte by one
-                    self.memory.increment_current_address(&1);
+                    if let Err(err) = self.memory.increment_current_address(&1) {
+                        return Err(BFError::new(
+                            i,
+                            bf_code.to_string(),
+                            err
+                        ));
+                    }
                 }
                 BFCommand::DecrementCell() => {
                     // Decrement the currently pointed byte by one
-                    self.memory.decrement_current_address(&1);
+                    if let Err(err) = self.memory.decrement_current_address(&1) {
+                        return Err(BFError::new(
+                            i,
+                            bf_code.to_string(),
+                            err
+                        ));
+                    }
                 }
                 BFCommand::OutputByte() => {
                     // Convert the pointed byte to ASCII and print it
@@ -80,7 +92,7 @@ impl BFInterpreter {
                         }
                         return Err(BFError::new(
                             i, 
-                            BFInterpreter::parse_commands_into_string(&commands),
+                            bf_code.to_string(),
                             BFErrorType::UnmatchedBracket()
                         ));
                     }
@@ -98,7 +110,7 @@ impl BFInterpreter {
                     }
                     return Err(BFError::new(
                         i, 
-                        BFInterpreter::parse_commands_into_string(&commands),
+                        bf_code.to_string(),
                         BFErrorType::UnmatchedBracket()
                     ));
                 }
