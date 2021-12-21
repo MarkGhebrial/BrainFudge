@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "BrainFudge"
+name = "brain_fudge"
 version = "0.1.0"

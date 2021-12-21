@@ -164,3 +164,23 @@ impl BFInterpreter {
         out
     }
 }
+
+/// Ensure that the interpterer runs Brainf**k code correctly
+#[test]
+fn validation() {
+    let mut interpreter = BFInterpreter::new();
+
+    match interpreter.execute(&String::from("+++>+++++[<+>-]")) {
+        Err(e) => panic!("Code that should execute failed\n{}", e),
+        Ok(()) => {}
+    };
+    assert_eq!(interpreter.memory.read_address(&0), 8);
+}
+
+#[test]
+fn command_parser() {
+    assert_eq!(
+        BFInterpreter::parse_commands_into_string(&BFInterpreter::parse_string_into_commands(&String::from("><+-[],."))),
+        String::from("><+-[],.")
+    );
+}

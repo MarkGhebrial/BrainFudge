@@ -1,4 +1,4 @@
-use super::{ BFError, BFErrorType };
+use super::BFErrorType;
 
 pub struct BFMemory {
     memory: Vec<u8>,
@@ -68,7 +68,7 @@ impl BFMemory {
     /// Read the byte at the specified address, but don't resize
     /// it.
     ///
-    /// Useful when self is not mutable
+    /// Useful when the reference to self is immutable
     pub fn read_address_no_resize (&self, address: &usize) -> u8 {
         let val = self.memory.get(*address);
         *val.unwrap() // Panic if index is out-of-bounds
