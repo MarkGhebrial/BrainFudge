@@ -36,8 +36,9 @@ fn run_repl() {
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
 
-        if input == String::from("clear") {
+        if input.trim() == String::from("clear") {
             interpreter.reset();
+            interpreter.print_memory();
             continue;
         }
 
