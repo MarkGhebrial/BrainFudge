@@ -4,6 +4,7 @@ use super::{
     BFError,
     BFErrorType
 };
+use std::io::{self, Write};
 
 pub struct BFInterpreter {
     memory: BFMemory,
@@ -73,7 +74,9 @@ impl BFInterpreter {
                 }
                 BFCommand::OutputByte() => {
                     // Convert the pointed byte to ASCII and print it
+                    //println!("TEST {}", self.memory.read_current_address());
                     print!("{}", char::from(self.memory.read_current_address()));
+                    io::stdout().flush().unwrap();
                 }
                 BFCommand::InputByte() => {
                     //TODO: implement this
@@ -81,11 +84,16 @@ impl BFInterpreter {
                 BFCommand::JumpForward() => {
                     // Jump foward to the next ']' if the current byte is non-zero
                     if self.memory.read_current_address() == 0 {
-                        for j in i..commands.len() {
+                        let mut nesting_level = 1;
+                        for j in i+1..commands.len() {
                             match commands[j] {
+                                BFCommand::JumpForward() => nesting_level += 1,
                                 BFCommand::JumpBackward() => {
-                                    i = j + 1;
-                                    continue 'main_loop;
+                                    nesting_level -= 1;
+                                    if nesting_level == 0 {
+                                        i = j + 1;
+                                        continue 'main_loop;
+                                    }
                                 },
                                 _ => {}
                             };
@@ -99,11 +107,16 @@ impl BFInterpreter {
                 }
                 BFCommand::JumpBackward() => {
                     // Jump back to the previous '['
+                    let mut nesting_level = 1;
                     for j in (0..i).rev() {
                         match commands[j] {
+                            BFCommand::JumpBackward() => nesting_level += 1,
                             BFCommand::JumpForward() => {
-                                i = j;
-                                continue 'main_loop;
+                                nesting_level -= 1;
+                                if nesting_level == 0 {
+                                    i = j;
+                                    continue 'main_loop;
+                                }
                             },
                             _ => {}
                         };
@@ -121,6 +134,10 @@ impl BFInterpreter {
             println!("{}", self.memory);
         }
         Ok(())
+    }
+
+    pub fn print_memory(&self) {
+        println!("{}", self.memory);
     }
 
     fn parse_string_into_commands(input: &String) -> Vec<BFCommand> {

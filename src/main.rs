@@ -7,14 +7,14 @@ use std::{ env, io::{ self, Write } };
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("{:#?}", args);
     if args.len() == 1 {
         run_repl();
     }
 
     // The Brainf**k source code
-    let input = String::from("+++>+++++[<+>-]++++++++[<++++++>-]<.");
-    //let input = String::from("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.");
+    //let input = String::from("+++>+++++[<+>-]++++++++[<++++++>-]<.");
+    let input = String::from("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.");
+
 
     let mut interpreter = BFInterpreter::new();
 
