@@ -1,7 +1,10 @@
 pub enum BFErrorType {
     UnmatchedBracket(),
     PointerOutOfBounds(),
-    CellOverflow()
+    CellOverflow {
+        cell_index: usize,
+        cell_value: isize,
+    }
 }
 
 /// An instance of this struct will be returned in a Result:Err() if the
@@ -29,11 +32,11 @@ impl fmt::Display for BFError {
         for _i in 0..self.location {
             spaces += " ";
         }
-        let message = String::from(match self.err_type {
-            BFErrorType::UnmatchedBracket() => "Unmatched bracket",
-            BFErrorType::PointerOutOfBounds() => "Pointer moved out bounds",
-            BFErrorType::CellOverflow() => "Cell exceeding 8-bit limit"
-        });
+        let message: String = match self.err_type {
+            BFErrorType::UnmatchedBracket() => "Unmatched bracket".to_owned(),
+            BFErrorType::PointerOutOfBounds() => "Pointer moved out bounds".to_owned(),
+            BFErrorType::CellOverflow { cell_index, cell_value } => format!("Cell #{cell_index}={cell_value} exceeding 8-bit limit")
+        };
         write!(f, "{}\n{}^ Err: {}", self.erroneous_code.trim(), spaces, message)
     }
 }

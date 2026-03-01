@@ -82,7 +82,7 @@ impl BFMemory {
     pub fn increment_current_address(&mut self, amount: &u8) -> Result<(), BFErrorType> {
         let new_val = self.read_current_address() as usize + *amount as usize;
         if new_val > 255 {
-            return Err(BFErrorType::CellOverflow());
+            return Err(BFErrorType::CellOverflow { cell_index: self.get_pointer(), cell_value: new_val as isize  });
         }
         self.write_to_current_address(&(new_val as u8));
         Ok(())
@@ -91,7 +91,7 @@ impl BFMemory {
     pub fn decrement_current_address(&mut self, amount: &u8) -> Result<(), BFErrorType> {
         let new_val = self.read_current_address() as isize - *amount as isize;
         if new_val < 0 {
-            return Err(BFErrorType::CellOverflow())
+            return Err(BFErrorType::CellOverflow { cell_index: self.get_pointer(), cell_value: new_val })
         }
         self.write_to_current_address(&(new_val as u8));
         Ok(())
