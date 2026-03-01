@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum BFErrorType {
     UnmatchedBracket,
     PointerOutOfBounds,
@@ -10,6 +11,7 @@ pub enum BFErrorType {
 /// An instance of this struct will be returned in a Result:Err() if the
 /// interpreter is given Brainf**k code that contains unmatched bracket
 /// operators
+#[derive(Debug)]
 pub struct BFError {
     location: usize,
     erroneous_code: String,
