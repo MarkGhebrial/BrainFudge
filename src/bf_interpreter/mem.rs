@@ -30,7 +30,7 @@ impl BFMemory {
         if amount <= &self.pointer {
             self.pointer -= amount;
         } else {
-            return Err(BFErrorType::PointerOutOfBounds());
+            return Err(BFErrorType::PointerOutOfBounds);
         }
         Ok(())
     }

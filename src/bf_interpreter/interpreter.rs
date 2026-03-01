@@ -4,25 +4,34 @@ use super::{
     BFError,
     BFErrorType
 };
-use std::io::{self, Write};
+use std::io::{self, Read, Write};
 
-pub struct BFInterpreter {
+pub struct BFInterpreter<R, W> {
     memory: BFMemory,
-    debug_mode: bool
+    debug_mode: bool,
+
+    read: R,
+    write: W,
 }
 
-impl BFInterpreter {
-    pub fn new() -> BFInterpreter {
-        BFInterpreter {
+impl BFInterpreter<std::io::Stdin, std::io::Stdout> {
+    pub fn new(debug_mode: bool) -> Self {
+        Self {
             memory: BFMemory::new(),
-            debug_mode: false
+            debug_mode,
+            read: std::io::stdin(),
+            write: std::io::stdout(),
         }
     }
+}
 
-    pub fn new_with_debug() -> BFInterpreter {
-        BFInterpreter {
+impl<R, W> BFInterpreter<R, W> where R: Read, W: Write {
+    pub fn from_rw(read: R, write: W, debug_mode: bool) -> Self {
+        Self {
             memory: BFMemory::new(),
-            debug_mode: true
+            debug_mode,
+            read,
+            write,
         }
     }
 
@@ -32,7 +41,7 @@ impl BFInterpreter {
     }
 
     pub fn execute(&mut self, bf_code: &String) -> Result<(), BFError> {
-        let commands = BFInterpreter::parse_string_into_commands(bf_code);
+        let commands = parse_string_into_commands(bf_code);
 
         // Process the commands (blocks the current thread)
         let mut i = 0;
@@ -74,12 +83,13 @@ impl BFInterpreter {
                 }
                 BFCommand::OutputByte() => {
                     // Convert the pointed byte to ASCII and print it
-                    //println!("TEST {}", self.memory.read_current_address());
-                    print!("{}", char::from(self.memory.read_current_address()));
+                    self.write.write(&[self.memory.read_current_address()]).unwrap();
                     io::stdout().flush().unwrap();
                 }
                 BFCommand::InputByte() => {
-                    //TODO: implement this
+                    let mut buf: [u8; 1] = [0];
+                    self.read.read_exact(&mut buf).unwrap();
+                    self.memory.write_to_current_address(&buf[0]);
                 }
                 BFCommand::JumpForward() => {
                     // Jump foward to the next ']' if the current byte is non-zero
@@ -101,7 +111,7 @@ impl BFInterpreter {
                         return Err(BFError::new(
                             i, 
                             bf_code.to_string(),
-                            BFErrorType::UnmatchedBracket()
+                            BFErrorType::UnmatchedBracket
                         ));
                     }
                 }
@@ -124,14 +134,14 @@ impl BFInterpreter {
                     return Err(BFError::new(
                         i, 
                         bf_code.to_string(),
-                        BFErrorType::UnmatchedBracket()
+                        BFErrorType::UnmatchedBracket
                     ));
                 }
             }
             i += 1;
         }
         if self.debug_mode {
-            println!("{}", self.memory);
+            writeln!(self.write, "{}", self.memory);
         }
         Ok(())
     }
@@ -139,65 +149,39 @@ impl BFInterpreter {
     pub fn print_memory(&self) {
         println!("{}", self.memory);
     }
+}
 
-    fn parse_string_into_commands(input: &String) -> Vec<BFCommand> {
-        let mut out: Vec<BFCommand> = vec!();
-        
-        for c in input.chars() {
-            let command: Option<BFCommand> = match c {
-                '<' => Some(BFCommand::ShiftPointerLeft()),
-                '>' => Some(BFCommand::ShiftPointerRight()),
-                '+' => Some(BFCommand::IncrementCell()),
-                '-' => Some(BFCommand::DecrementCell()),
-                '.' => Some(BFCommand::OutputByte()),
-                ',' => Some(BFCommand::InputByte()),
-                '[' => Some(BFCommand::JumpForward()),
-                ']' => Some(BFCommand::JumpBackward()),
-                _ => None
-            };
-            match command {
-                Some(g) => { out.push(g); }
-                None => {}
-            };
-        }
-        out
+fn parse_string_into_commands(input: &String) -> Vec<BFCommand> {
+    let mut out: Vec<BFCommand> = vec!();
+    
+    for c in input.chars() {
+        let command: Option<BFCommand> = match c {
+            '<' => Some(BFCommand::ShiftPointerLeft()),
+            '>' => Some(BFCommand::ShiftPointerRight()),
+            '+' => Some(BFCommand::IncrementCell()),
+            '-' => Some(BFCommand::DecrementCell()),
+            '.' => Some(BFCommand::OutputByte()),
+            ',' => Some(BFCommand::InputByte()),
+            '[' => Some(BFCommand::JumpForward()),
+            ']' => Some(BFCommand::JumpBackward()),
+            _ => None
+        };
+        match command {
+            Some(g) => { out.push(g); }
+            None => {}
+        };
     }
-
-    fn parse_commands_into_string(input: &Vec<BFCommand>) -> String {
-        let mut out = String::new();
-
-        for c in input {
-            match c {
-                BFCommand::ShiftPointerLeft() => { out += "<"; },
-                BFCommand::ShiftPointerRight() => { out += ">"; },
-                BFCommand::IncrementCell() => { out += "+"; },
-                BFCommand::DecrementCell() => { out += "-"; },
-                BFCommand::OutputByte() => { out += "."; },
-                BFCommand::InputByte() => { out += ","; },
-                BFCommand::JumpForward() => { out += "["; },
-                BFCommand::JumpBackward() => { out += "]"; },
-            }
-        }
-        out
-    }
+    out
 }
 
 /// Ensure that the interpterer runs Brainf**k code correctly
 #[test]
 fn validation() {
-    let mut interpreter = BFInterpreter::new();
+    let mut interpreter = BFInterpreter::new(false);
 
     match interpreter.execute(&String::from("+++>+++++[<+>-]")) {
         Err(e) => panic!("Code that should execute failed\n{}", e),
         Ok(()) => {}
     };
     assert_eq!(interpreter.memory.read_address(&0), 8);
-}
-
-#[test]
-fn command_parser() {
-    assert_eq!(
-        BFInterpreter::parse_commands_into_string(&BFInterpreter::parse_string_into_commands(&String::from("><+-[],."))),
-        String::from("><+-[],.")
-    );
 }

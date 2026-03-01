@@ -1,6 +1,6 @@
 pub enum BFErrorType {
-    UnmatchedBracket(),
-    PointerOutOfBounds(),
+    UnmatchedBracket,
+    PointerOutOfBounds,
     CellOverflow {
         cell_index: usize,
         cell_value: isize,
@@ -33,8 +33,8 @@ impl fmt::Display for BFError {
             spaces += " ";
         }
         let message: String = match self.err_type {
-            BFErrorType::UnmatchedBracket() => "Unmatched bracket".to_owned(),
-            BFErrorType::PointerOutOfBounds() => "Pointer moved out bounds".to_owned(),
+            BFErrorType::UnmatchedBracket => "Unmatched bracket".to_owned(),
+            BFErrorType::PointerOutOfBounds => "Pointer moved out bounds".to_owned(),
             BFErrorType::CellOverflow { cell_index, cell_value } => format!("Cell #{cell_index}={cell_value} exceeding 8-bit limit")
         };
         write!(f, "{}\n{}^ Err: {}", self.erroneous_code.trim(), spaces, message)

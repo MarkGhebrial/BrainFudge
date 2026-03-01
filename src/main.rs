@@ -1,7 +1,5 @@
 mod bf_interpreter;
-use bf_interpreter::{
-    BFInterpreter
-};
+use bf_interpreter::BFInterpreter;
 
 use std::{ env, fs, io::{ self, Write } };
 
@@ -15,7 +13,7 @@ fn main() {
     // The Brainf*ck source code
     let code = fs::read_to_string(file_name).unwrap();
 
-    let mut interpreter = BFInterpreter::new();
+    let mut interpreter = BFInterpreter::new(false);
 
     match interpreter.execute(&code) {
         Ok(()) => (),
@@ -24,7 +22,7 @@ fn main() {
 }
 
 fn run_repl() -> ! {
-    let mut interpreter = BFInterpreter::new_with_debug();
+    let mut interpreter = BFInterpreter::new(true);
     loop {
         // Probably not the best choice for this repl
         // because ">>>" is valid Brainf**k code and

@@ -16,7 +16,7 @@ pub use errors::*;
 
 #[test]
 fn err_display() {
-    let e = BFError::new(17, String::from("+++>+++++[<+>-]++]++++++[<++++++>-]<."), BFErrorType::UnmatchedBracket());
+    let e = BFError::new(17, String::from("+++>+++++[<+>-]++]++++++[<++++++>-]<."), BFErrorType::UnmatchedBracket);
 
     assert_eq!(
         format!("{}", e),
