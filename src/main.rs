@@ -3,28 +3,27 @@ use bf_interpreter::{
     BFInterpreter
 };
 
-use std::{ env, io::{ self, Write } };
+use std::{ env, fs, io::{ self, Write } };
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() == 1 {
+
+    let Some(file_name) = args.get(1) else {
         run_repl();
-    }
+    };
 
-    // The Brainf**k source code
-    //let input = String::from("+++>+++++[<+>-]++++++++[<++++++>-]<.");
-    let input = String::from("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.");
-
+    // The Brainf*ck source code
+    let code = fs::read_to_string(file_name).unwrap();
 
     let mut interpreter = BFInterpreter::new();
 
-    match interpreter.execute(&input) {
-        Ok(()) => println!("\nHuzzah! The program executed with no errors"),
+    match interpreter.execute(&code) {
+        Ok(()) => (),
         Err(e) => println!("\n{}", e)
     };
 }
 
-fn run_repl() {
+fn run_repl() -> ! {
     let mut interpreter = BFInterpreter::new_with_debug();
     loop {
         // Probably not the best choice for this repl
