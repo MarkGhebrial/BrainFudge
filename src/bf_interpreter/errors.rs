@@ -24,7 +24,9 @@ impl BFError {
     }
 }
 
-use std::fmt;
+impl Error for BFError {}
+
+use std::{error::Error, fmt};
 impl fmt::Display for BFError {
     /// Display something like this:
     /// +++>+++++[<+>-]++]++++++[<++++++>-]<.
